@@ -78,7 +78,7 @@ def get_structure(data):
 	with open(data) as xyz:
 		for ii, line in enumerate(xyz):
 			line = line.split()
-			if len(line) == 4:
+			if len(line) == 4: #and line[0] == 'C': 			#no hydrogen
 				atoms = np.append(atoms, Atom(line[0], ii - 2,
 											  [float(line[1]),
 											  float(line[2]),
@@ -214,19 +214,3 @@ union {
 
 	povfile.write('\n}')
 	povfile.close()
-
-
-"""
-Auto camera placement:
-
-draw fitplane through molecule----------------
-get normal vector			-----------------
-place normal at CoM------------------------
-(point camera at CoM)----------------------
-
-calculatee for atoms furthest away from CoM they are still in view range and increase camera distance till they are
-
-
-include lighting placement relative to camera
-
-"""
