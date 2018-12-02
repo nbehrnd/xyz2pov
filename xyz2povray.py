@@ -39,6 +39,8 @@ class Atom:
 													   self.rgb[1],
 													   self.rgb[2],
 													   self.rad)
+	def translate(self, vector):
+		self.position -= vector
 
 class Bond():
 	def __init__(self, startAtom, endAtom):
@@ -95,12 +97,61 @@ def get_CoM(Molecule):
 
 	return np.around(CoM, decimals=2)
 
+def move2origin(Molecule, CoM):
+	for atom in Molecule:
+		atom.translate(CoM)
+
+def fitPlane(positions):
+	G = np.ones((len(positions), 3))
+
+	G[:, 0] = positions[:, 0]  # X
+	G[:, 1] = positions[:, 1]  # Y
+
+	Z = positions[:, 2]
+	(a, b, c), resid, rank, s = np.linalg.lstsq(G, Z, rcond=None)
+
+	normal = (a, b, -1)
+	nn = np.linalg.norm(normal)
+	normal = normal / nn
+
+	return  normal
+
 
 if __name__ == '__main__':
 
 	molecule = get_structure('benzene.xyz')
 	CoM = get_CoM(molecule)
-	povfile = open('benzene_test.pov', 'w')
+	move2origin(molecule, CoM)
+
+	povfile = open('benzene.pov', 'w')
+
+	positions = np.array([atom.position for atom in molecule])
+	normal = fitPlane(positions) * 10			#direction from which the camera is looking
+
+	distances = np.array([abs(npl.norm(atom.position)) for atom in molecule])
+
+	visibility_scaling = np.max(distances) + 0.5
+
+	radial = abs(npl.norm(normal))
+	polar = np.arccos(normal[2] / radial)
+	azimuthal = np.arctan(normal[1] / normal[0])
+
+	l1_radial = radial + 5.0
+	l1_azimuthal = azimuthal + np.pi/180.0 * 30
+	l1_polar = polar + np.pi/180.0 * 30
+
+	l2_radial = radial + 5.0
+	l2_azimuthal = azimuthal - np.pi/180.0 * 30
+	l2_polar = polar
+
+
+	light1 = np.array([l1_radial * np.sin(l1_polar) * np.cos(l1_azimuthal),
+						l1_radial * np.sin(l1_polar) * np.sin(l1_azimuthal),
+						l1_radial * np.cos(l1_polar)])
+
+	light2 = np.array([l2_radial * np.sin(l2_polar) * np.cos(l2_azimuthal),
+						l2_radial * np.sin(l2_polar) * np.sin(l2_azimuthal),
+						l2_radial * np.cos(l2_polar)])
 
 	default_settings = """
 global_settings {ambient_light rgb <0.200000002980232, 0.200000002980232, 0.200000002980232> 
@@ -109,28 +160,27 @@ global_settings {ambient_light rgb <0.200000002980232, 0.200000002980232, 0.2000
 background {color rgb <1,1,1>}
 
 camera {
-	perspective
-	location <-0.119676273571147, 0.268226323613782, -16.2536219151301>
-	angle 40
-	right <0.53616984737649, 0.843301580900614, -0.0369369518882763> * 1.77777777777778
-	up <0.843582929576705, -0.533775428224727, 0.058750601276018>
-	look_at <%r,%r,%r> }
+	orthographic
+	location <%r,%r,%r>
+	right 16/9 * %r
+	up %r
+	look_at <0.0,0.0,0.0> }
 
 light_source {
-	<37.3852768468266, 8.49194382559059, -35.1313725898865>
+	<%r,%r,%r>
 	color rgb <1, 1, 1>
-	fade_distance 71.2594330712784
+	fade_distance 71
 	fade_power 0
 	parallel
-	point_at <-37.3852768468266, -8.49194382559059, 35.1313725898865>}
+	point_at <0,0,0>}
 
 light_source {
-	<5.2253807423533, -36.2337908258371, 20.2900381487961>
-	color rgb <0.300000011920929, 0.300000011920929, 0.300000011920929>
-	fade_distance 71.2594330712784
+	<%r,%r,%r>
+	color rgb <0.05,0.05,0.05>
+	fade_distance 71
 	fade_power 0
 	parallel
-	point_at <-5.2253807423533, 36.2337908258371, -20.2900381487961>}
+	point_at <0,0,0>}
 
 #default {finish {ambient .8 diffuse 1 specular 1 roughness .005 metallic 0.5}}
 
@@ -147,7 +197,7 @@ cylinder {
 #end
 
 union {
-""" % (CoM[0], CoM[1], CoM[2])
+""" % (normal[0], normal[1], normal[2], visibility_scaling, visibility_scaling, light1[0], light1[1], light1[2], light2[0], light2[1], light2[2])
 
 	povfile.write(default_settings)
 
@@ -158,7 +208,7 @@ union {
 	for atom1 in molecule:
 		for atom2 in molecule:
 			bond = Bond(atom1, atom2)
-			if(atom1 != atom2 and abs(npl.norm(atom1.position - atom2.position)) <= 2.0 and bond.ID not in bond_list and bond.ID[::-1] not in bond_list):
+			if(atom1 != atom2 and abs(npl.norm(atom1.position - atom2.position)) <= 1.6 and bond.ID not in bond_list and bond.ID[::-1] not in bond_list):
 				bond_list.append(bond.ID)
 				povfile.write(bond.toPOV())
 
@@ -166,14 +216,13 @@ union {
 	povfile.close()
 
 
-
 """
 Auto camera placement:
 
-draw fitplane through molecule
-get normal vector
-place normal at CoM
-(point camera at CoM)
+draw fitplane through molecule----------------
+get normal vector			-----------------
+place normal at CoM------------------------
+(point camera at CoM)----------------------
 
 calculatee for atoms furthest away from CoM they are still in view range and increase camera distance till they are
 
