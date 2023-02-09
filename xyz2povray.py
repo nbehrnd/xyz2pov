@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Python script converts .xyz geometry file into a Pov-Ray .pov file."""
 
 import string
 import numpy as np
@@ -8,7 +9,7 @@ import sys
 
 
 class Atom:
-
+    """define appearance of atoms as colored spheres"""
     def __init__(self, species, tag, position=[0, 0, 0]):
         self.species = species
         self.tag = tag
@@ -38,7 +39,7 @@ class Atom:
 
 
 class Bond():
-
+    """define appearance of bonds as struts"""
     def __init__(self, startAtom, endAtom):
         self.startAtom = startAtom
         self.endAtom = endAtom
@@ -78,7 +79,10 @@ def get_structure(data):
 
 
 def get_CoM(Molecule):
+    """determine the molecule's center of gravity
 
+    Note: this is literally by the atoms' masses, and not only by mere dimension
+    of the molecule in 3D."""
     CoM = np.array([0.0, 0.0, 0.0])
     total_mass = 0.0
 
@@ -91,6 +95,7 @@ def get_CoM(Molecule):
 
 
 def move2origin(Molecule, CoM):
+    """align molecule's centre of gravity and origin of the coordinate system"""
     for atom in Molecule:
         atom.translate(CoM)
 
