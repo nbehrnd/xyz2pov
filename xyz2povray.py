@@ -152,7 +152,7 @@ if __name__ == '__main__':
     ])
 
     default_settings = """
-global_settings {ambient_light rgb <0.200000002980232, 0.200000002980232, 0.200000002980232> 
+global_settings {ambient_light rgb <0.200, 0.200, 0.200> 
          max_trace_level 15} 
 
 background {color rgb <1,1,1>}
