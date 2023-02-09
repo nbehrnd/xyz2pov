@@ -119,103 +119,102 @@ if __name__ == '__main__':
     center_of_mass = get_center_of_mass(molecule)
     move2origin(molecule, center_of_mass)
 
-    povfile = open('benzene.pov', 'w')
+    with open("benzene.pov", mode="w", encoding="utf8") as povfile:
 
-    positions = np.array([atom.position for atom in molecule])
-    normal = fitPlane(
-        positions) * 10  #direction from which the camera is looking
+        positions = np.array([atom.position for atom in molecule])
+        normal = fitPlane(
+            positions) * 10  #direction from which the camera is looking
 
-    distances = np.array([abs(npl.norm(atom.position)) for atom in molecule])
+        distances = np.array([abs(npl.norm(atom.position)) for atom in molecule])
 
-    visibility_scaling = np.max(distances) + 0.5
+        visibility_scaling = np.max(distances) + 0.5
 
-    radial = abs(npl.norm(normal))
-    polar = np.arccos(normal[2] / radial)
-    azimuthal = np.arctan(normal[1] / normal[0])
+        radial = abs(npl.norm(normal))
+        polar = np.arccos(normal[2] / radial)
+        azimuthal = np.arctan(normal[1] / normal[0])
 
-    l1_radial = radial + 5.0
-    l1_azimuthal = azimuthal + np.pi / 180.0 * 30
-    l1_polar = polar + np.pi / 180.0 * 30
+        l1_radial = radial + 5.0
+        l1_azimuthal = azimuthal + np.pi / 180.0 * 30
+        l1_polar = polar + np.pi / 180.0 * 30
 
-    l2_radial = radial + 5.0
-    l2_azimuthal = azimuthal - np.pi / 180.0 * 30
-    l2_polar = polar
+        l2_radial = radial + 5.0
+        l2_azimuthal = azimuthal - np.pi / 180.0 * 30
+        l2_polar = polar
 
-    light1 = np.array([
-        l1_radial * np.sin(l1_polar) * np.cos(l1_azimuthal),
-        l1_radial * np.sin(l1_polar) * np.sin(l1_azimuthal),
-        l1_radial * np.cos(l1_polar)
-    ])
+        light1 = np.array([
+            l1_radial * np.sin(l1_polar) * np.cos(l1_azimuthal),
+            l1_radial * np.sin(l1_polar) * np.sin(l1_azimuthal),
+            l1_radial * np.cos(l1_polar)
+        ])
 
-    light2 = np.array([
-        l2_radial * np.sin(l2_polar) * np.cos(l2_azimuthal),
-        l2_radial * np.sin(l2_polar) * np.sin(l2_azimuthal),
-        l2_radial * np.cos(l2_polar)
-    ])
+        light2 = np.array([
+            l2_radial * np.sin(l2_polar) * np.cos(l2_azimuthal),
+            l2_radial * np.sin(l2_polar) * np.sin(l2_azimuthal),
+            l2_radial * np.cos(l2_polar)
+        ])
 
-    default_settings = """
-global_settings {ambient_light rgb <0.200, 0.200, 0.200> 
-         max_trace_level 15} 
+        default_settings = """
+    global_settings {ambient_light rgb <0.200, 0.200, 0.200> 
+             max_trace_level 15} 
 
-background {color rgb <1,1,1>}
+    background {color rgb <1,1,1>}
 
-camera {
-  orthographic
-  location <%r,%r,%r>
-  right 16/9 * %r
-  up %r
-  look_at <0.0,0.0,0.0> }
+    camera {
+      orthographic
+      location <%r,%r,%r>
+      right 16/9 * %r
+      up %r
+      look_at <0.0,0.0,0.0> }
 
-light_source {
-  <%r,%r,%r>
-  color rgb <1, 1, 1>
-  fade_distance 71
-  fade_power 0
-  parallel
-  point_at <0,0,0>}
+    light_source {
+      <%r,%r,%r>
+      color rgb <1, 1, 1>
+      fade_distance 71
+      fade_power 0
+      parallel
+      point_at <0,0,0>}
 
-light_source {
-  <%r,%r,%r>
-  color rgb <0.05,0.05,0.05>
-  fade_distance 71
-  fade_power 0
-  parallel
-  point_at <0,0,0>}
+    light_source {
+      <%r,%r,%r>
+      color rgb <0.05,0.05,0.05>
+      fade_distance 71
+      fade_power 0
+      parallel
+      point_at <0,0,0>}
 
-#default {finish {ambient .8 diffuse 1 specular 1 roughness .005 metallic 0.5}}
+    #default {finish {ambient .8 diffuse 1 specular 1 roughness .005 metallic 0.5}}
 
-#macro Atom(pos, col, rad)
-sphere {
-   pos, rad 
-   pigment { color rgbt col}}
-#end
+    #macro Atom(pos, col, rad)
+    sphere {
+       pos, rad 
+       pigment { color rgbt col}}
+    #end
 
-#macro Bond(beginAtom, atom_b, col, rad)
-cylinder {
-   beginAtom, atom_b, rad
-   pigment { color rgbt col}}
-#end
+    #macro Bond(beginAtom, atom_b, col, rad)
+    cylinder {
+       beginAtom, atom_b, rad
+       pigment { color rgbt col}}
+    #end
 
-union {
-""" % (normal[0], normal[1], normal[2], visibility_scaling, visibility_scaling,
-       light1[0], light1[1], light1[2], light2[0], light2[1], light2[2])
+    union {
+    """ % (normal[0], normal[1], normal[2], visibility_scaling, visibility_scaling,
+           light1[0], light1[1], light1[2], light2[0], light2[1], light2[2])
 
-    povfile.write(default_settings)
+        povfile.write(default_settings)
 
-    for atom in molecule:
-        povfile.write(atom.toPOV())
+        for atom in molecule:
+            povfile.write(atom.toPOV())
 
-    bond_list = [
-    ]  #keeps track of the bond halfwaypoints just to avoid double counting
-    for atom1 in molecule:
-        for atom2 in molecule:
-            bond = Bond(atom1, atom2)
-            if (atom1 != atom2
-                    and abs(npl.norm(atom1.position - atom2.position)) <= 1.6
-                    and bond.ID not in bond_list
-                    and bond.ID[::-1] not in bond_list):
-                bond_list.append(bond.ID)
-                povfile.write(bond.toPOV())
+        bond_list = [
+        ]  #keeps track of the bond halfwaypoints just to avoid double counting
+        for atom1 in molecule:
+            for atom2 in molecule:
+                bond = Bond(atom1, atom2)
+                if (atom1 != atom2
+                        and abs(npl.norm(atom1.position - atom2.position)) <= 1.6
+                        and bond.ID not in bond_list
+                        and bond.ID[::-1] not in bond_list):
+                    bond_list.append(bond.ID)
+                    povfile.write(bond.toPOV())
 
-    povfile.write('\n}')
-    povfile.close()
+        povfile.write('\n}')
