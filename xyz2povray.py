@@ -75,26 +75,26 @@ def get_structure(data):
     return atoms
 
 
-def get_CoM(Molecule):
+def get_center_of_mass(Molecule):
     """determine the molecule's center of gravity
 
     Note: this is literally by the atoms' masses, and not only by mere dimension
     of the molecule in 3D."""
-    CoM = np.array([0.0, 0.0, 0.0])
+    center_of_mass = np.array([0.0, 0.0, 0.0])
     total_mass = 0.0
 
     for atom in Molecule:
-        CoM += atom.mass * atom.position
+        center_of_mass += atom.mass * atom.position
         total_mass += atom.mass
-    CoM /= total_mass
+    center_of_mass /= total_mass
 
-    return np.around(CoM, decimals=2)
+    return np.around(center_of_mass, decimals=2)
 
 
-def move2origin(Molecule, CoM):
+def move2origin(Molecule, center_of_mass):
     """align molecule's centre of gravity and origin of the coordinate system"""
     for atom in Molecule:
-        atom.translate(CoM)
+        atom.translate(center_of_mass)
 
 
 def fitPlane(positions):
@@ -116,8 +116,8 @@ def fitPlane(positions):
 if __name__ == '__main__':
 
     molecule = get_structure('benzene.xyz')
-    CoM = get_CoM(molecule)
-    move2origin(molecule, CoM)
+    center_of_mass = get_center_of_mass(molecule)
+    move2origin(molecule, center_of_mass)
 
     povfile = open('benzene.pov', 'w')
 
