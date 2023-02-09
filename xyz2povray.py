@@ -51,13 +51,15 @@ class Bond():
         halfway_point = (self.atom_a.position -
                          self.atom_b.position) / 2 + self.atom_b.position
 
-        atom_a_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+#        atom_a_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+        atom_a_cylinder = "Bond(<{:7.4f},{:7.4f},{:7.4f}>, <{:7.4f},{:7.4f},{:7.4f}>, <{:5.3f},{:5.3f},{:5.3f}>, 0.25)\n".format(
             self.atom_a.position[0], self.atom_a.position[1],
             self.atom_a.position[2], halfway_point[0], halfway_point[1],
             halfway_point[2], self.atom_a.rgb[0], self.atom_a.rgb[1],
             self.atom_a.rgb[2])
 
-        atom_b_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+#        atom_b_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+        atom_b_cylinder = "Bond(<{:7.4f},{:7.4f},{:7.4f}>, <{:7.4f},{:7.4f},{:7.4f}>, <{:5.3f},{:5.3f},{:5.3f}>, 0.25)\n".format(
             self.atom_b.position[0], self.atom_b.position[1],
             self.atom_b.position[2], halfway_point[0], halfway_point[1],
             halfway_point[2], self.atom_b.rgb[0], self.atom_b.rgb[1],
