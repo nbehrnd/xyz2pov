@@ -7,6 +7,7 @@ import numpy.linalg as npl
 
 class Atom:
     """define appearance of atoms as colored spheres"""
+
     def __init__(self, species, tag, position=[0, 0, 0]):
         self.species = species
         self.tag = tag
@@ -27,7 +28,10 @@ class Atom:
             self.position[1], self.position[2])
 
     def toPOV(self):
-        return "Atom(<%r,%r,%r>, <%r,%r,%r>, %r)\n" % (
+        #        return "Atom(<%r,%r,%r>, <%r,%r,%r>, %r)\n" % (
+        #            self.position[0], self.position[1], self.position[2], self.rgb[0],
+        #            self.rgb[1], self.rgb[2], self.rad)
+        return "Atom(<{:7.4f}, {:7.4f}, {:7.4f}>, <{:5.3f}, {:5.3f}, {:5.3f}>, {:5.3f})\n".format(
             self.position[0], self.position[1], self.position[2], self.rgb[0],
             self.rgb[1], self.rgb[2], self.rad)
 
@@ -37,6 +41,7 @@ class Atom:
 
 class Bond():
     """define appearance of bonds as struts between atom_a and atom_b"""
+
     def __init__(self, atom_a, atom_b):
         self.atom_a = atom_a
         self.atom_b = atom_b
@@ -125,7 +130,8 @@ if __name__ == '__main__':
         normal = fitPlane(
             positions) * 10  #direction from which the camera is looking
 
-        distances = np.array([abs(npl.norm(atom.position)) for atom in molecule])
+        distances = np.array(
+            [abs(npl.norm(atom.position)) for atom in molecule])
 
         visibility_scaling = np.max(distances) + 0.5
 
@@ -197,8 +203,9 @@ if __name__ == '__main__':
     #end
 
     union {
-    """ % (normal[0], normal[1], normal[2], visibility_scaling, visibility_scaling,
-           light1[0], light1[1], light1[2], light2[0], light2[1], light2[2])
+    """ % (normal[0], normal[1], normal[2], visibility_scaling,
+           visibility_scaling, light1[0], light1[1], light1[2], light2[0],
+           light2[1], light2[2])
 
         povfile.write(default_settings)
 
@@ -210,8 +217,8 @@ if __name__ == '__main__':
         for atom1 in molecule:
             for atom2 in molecule:
                 bond = Bond(atom1, atom2)
-                if (atom1 != atom2
-                        and abs(npl.norm(atom1.position - atom2.position)) <= 1.6
+                if (atom1 != atom2 and
+                        abs(npl.norm(atom1.position - atom2.position)) <= 1.6
                         and bond.ID not in bond_list
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
