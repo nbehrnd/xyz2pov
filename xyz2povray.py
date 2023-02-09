@@ -67,7 +67,7 @@ def get_structure(data):
     with open(data) as xyz:
         for ii, line in enumerate(xyz):
             line = line.split()
-            if len(line) == 4:  #and line[0] == 'C': 			#no hydrogen
+            if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
                 atoms = np.append(
                     atoms,
                     Atom(line[0], ii - 2,
@@ -153,32 +153,32 @@ if __name__ == '__main__':
 
     default_settings = """
 global_settings {ambient_light rgb <0.200000002980232, 0.200000002980232, 0.200000002980232> 
-				 max_trace_level 15} 
+         max_trace_level 15} 
 
 background {color rgb <1,1,1>}
 
 camera {
-	orthographic
-	location <%r,%r,%r>
-	right 16/9 * %r
-	up %r
-	look_at <0.0,0.0,0.0> }
+  orthographic
+  location <%r,%r,%r>
+  right 16/9 * %r
+  up %r
+  look_at <0.0,0.0,0.0> }
 
 light_source {
-	<%r,%r,%r>
-	color rgb <1, 1, 1>
-	fade_distance 71
-	fade_power 0
-	parallel
-	point_at <0,0,0>}
+  <%r,%r,%r>
+  color rgb <1, 1, 1>
+  fade_distance 71
+  fade_power 0
+  parallel
+  point_at <0,0,0>}
 
 light_source {
-	<%r,%r,%r>
-	color rgb <0.05,0.05,0.05>
-	fade_distance 71
-	fade_power 0
-	parallel
-	point_at <0,0,0>}
+  <%r,%r,%r>
+  color rgb <0.05,0.05,0.05>
+  fade_distance 71
+  fade_power 0
+  parallel
+  point_at <0,0,0>}
 
 #default {finish {ambient .8 diffuse 1 specular 1 roughness .005 metallic 0.5}}
 
