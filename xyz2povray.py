@@ -157,8 +157,8 @@ if __name__ == '__main__':
         ])
 
         default_settings = """
-    global_settings {ambient_light rgb <0.200, 0.200, 0.200> 
-             max_trace_level 15} 
+    global_settings {ambient_light rgb <0.200, 0.200, 0.200>
+             max_trace_level 15}
 
     background {color rgb <1,1,1>}
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
     #macro Atom(pos, col, rad)
     sphere {
-       pos, rad 
+       pos, rad
        pigment { color rgbt col}}
     #end
 
@@ -222,4 +222,28 @@ declare molecule = union {
                     povfile.write(bond.toPOV())
 
         povfile.write('\n}')
-        povfile.write("\nmolecule")
+
+        # declare possibilty for a rotation around x in the .pov of scene
+        rotation_block_a = """
+union{
+molecule
+rotate <clock*360, 0, 0>
+}
+        """
+        povfile.write(rotation_block_a)
+
+        # declare a 30 frame rotation around x for file `benzene.ini`
+        # To eventually render a sequence of 30 frames, this requires a run
+        # `povray benzene.ini` instead of `povray benzene.pov`.  Ascertain the
+        # simultaneous presence of `benzene.pov and `benzene.ini` in the very
+        # same writeable folder.)
+        rotation_block_b = """
+Input_File_Name=benzene.pov
+Width = 640
+Height = 420
+Initial_Frame = 1
+Final_Frame = 30
+Antialias=on
+        """
+        with open("benzene.ini", mode="w", encoding="utf8") as newfile:
+            newfile.write(rotation_block_b)
