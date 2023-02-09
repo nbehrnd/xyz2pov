@@ -28,10 +28,7 @@ class Atom:
             self.position[1], self.position[2])
 
     def toPOV(self):
-        #        return "Atom(<%r,%r,%r>, <%r,%r,%r>, %r)\n" % (
-        #            self.position[0], self.position[1], self.position[2], self.rgb[0],
-        #            self.rgb[1], self.rgb[2], self.rad)
-        return "Atom(<{:7.4f}, {:7.4f}, {:7.4f}>, <{:5.3f}, {:5.3f}, {:5.3f}>, {:5.3f})\n".format(
+        return "Atom(<{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f}, {:4.3f}, {:4.3f}>, {:4.2f})\n".format(
             self.position[0], self.position[1], self.position[2], self.rgb[0],
             self.rgb[1], self.rgb[2], self.rad)
 
@@ -51,15 +48,13 @@ class Bond():
         halfway_point = (self.atom_a.position -
                          self.atom_b.position) / 2 + self.atom_b.position
 
-#        atom_a_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
-        atom_a_cylinder = "Bond(<{:7.4f},{:7.4f},{:7.4f}>, <{:7.4f},{:7.4f},{:7.4f}>, <{:5.3f},{:5.3f},{:5.3f}>, 0.25)\n".format(
+        atom_a_cylinder = "Bond(<{:6.3f},{:6.3f},{:6.3f}>, <{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f},{:4.3f},{:4.3f}>, 0.25)\n".format(
             self.atom_a.position[0], self.atom_a.position[1],
             self.atom_a.position[2], halfway_point[0], halfway_point[1],
             halfway_point[2], self.atom_a.rgb[0], self.atom_a.rgb[1],
             self.atom_a.rgb[2])
 
-#        atom_b_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
-        atom_b_cylinder = "Bond(<{:7.4f},{:7.4f},{:7.4f}>, <{:7.4f},{:7.4f},{:7.4f}>, <{:5.3f},{:5.3f},{:5.3f}>, 0.25)\n".format(
+        atom_b_cylinder = "Bond(<{:6.3f},{:6.3f},{:6.3f}>, <{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f},{:4.3f},{:4.3f}>, 0.25)\n".format(
             self.atom_b.position[0], self.atom_b.position[1],
             self.atom_b.position[2], halfway_point[0], halfway_point[1],
             halfway_point[2], self.atom_b.rgb[0], self.atom_b.rgb[1],
@@ -204,8 +199,8 @@ if __name__ == '__main__':
        pigment { color rgbt col}}
     #end
 
-    union {
-    """ % (normal[0], normal[1], normal[2], visibility_scaling,
+declare molecule = union {
+""" % (normal[0], normal[1], normal[2], visibility_scaling,
            visibility_scaling, light1[0], light1[1], light1[2], light2[0],
            light2[1], light2[2])
 
@@ -227,3 +222,4 @@ if __name__ == '__main__':
                     povfile.write(bond.toPOV())
 
         povfile.write('\n}')
+        povfile.write("\nmolecule")
