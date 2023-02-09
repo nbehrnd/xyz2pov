@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """Python script converts .xyz geometry file into a Pov-Ray .pov file."""
 
-import string
 import numpy as np
 import numpy.linalg as npl
-import os
-import sys
 
 
 class Atom:
