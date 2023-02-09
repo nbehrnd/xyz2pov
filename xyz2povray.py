@@ -36,28 +36,28 @@ class Atom:
 
 
 class Bond():
-    """define appearance of bonds as struts between startAtom and endAtom"""
-    def __init__(self, startAtom, endAtom):
-        self.startAtom = startAtom
-        self.endAtom = endAtom
-        self.ID = str(startAtom.tag) + str(endAtom.tag)
+    """define appearance of bonds as struts between atom_a and atom_b"""
+    def __init__(self, atom_a, atom_b):
+        self.atom_a = atom_a
+        self.atom_b = atom_b
+        self.ID = str(atom_a.tag) + str(atom_b.tag)
 
     def toPOV(self):
-        halfway_point = (self.startAtom.position -
-                         self.endAtom.position) / 2 + self.endAtom.position
+        halfway_point = (self.atom_a.position -
+                         self.atom_b.position) / 2 + self.atom_b.position
 
-        startAtom_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
-            self.startAtom.position[0], self.startAtom.position[1],
-            self.startAtom.position[2], halfway_point[0], halfway_point[1],
-            halfway_point[2], self.startAtom.rgb[0], self.startAtom.rgb[1],
-            self.startAtom.rgb[2])
+        atom_a_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+            self.atom_a.position[0], self.atom_a.position[1],
+            self.atom_a.position[2], halfway_point[0], halfway_point[1],
+            halfway_point[2], self.atom_a.rgb[0], self.atom_a.rgb[1],
+            self.atom_a.rgb[2])
 
-        endAtom_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
-            self.endAtom.position[0], self.endAtom.position[1],
-            self.endAtom.position[2], halfway_point[0], halfway_point[1],
-            halfway_point[2], self.endAtom.rgb[0], self.endAtom.rgb[1],
-            self.endAtom.rgb[2])
-        return startAtom_cylinder + endAtom_cylinder
+        atom_b_cylinder = "Bond(<%r,%r,%r>, <%r,%r,%r>, <%r,%r,%r>, 0.25)\n" % (
+            self.atom_b.position[0], self.atom_b.position[1],
+            self.atom_b.position[2], halfway_point[0], halfway_point[1],
+            halfway_point[2], self.atom_b.rgb[0], self.atom_b.rgb[1],
+            self.atom_b.rgb[2])
+        return atom_a_cylinder + atom_b_cylinder
 
 
 def get_structure(data):
@@ -190,9 +190,9 @@ sphere {
    pigment { color rgbt col}}
 #end
 
-#macro Bond(beginAtom, endAtom, col, rad)
+#macro Bond(beginAtom, atom_b, col, rad)
 cylinder {
-   beginAtom, endAtom, rad
+   beginAtom, atom_b, rad
    pigment { color rgbt col}}
 #end
 
