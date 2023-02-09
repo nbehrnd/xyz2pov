@@ -36,7 +36,7 @@ class Atom:
 
 
 class Bond():
-    """define appearance of bonds as struts"""
+    """define appearance of bonds as struts between startAtom and endAtom"""
     def __init__(self, startAtom, endAtom):
         self.startAtom = startAtom
         self.endAtom = endAtom
