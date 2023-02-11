@@ -258,8 +258,8 @@ rotate <clock*360, 0, 0>
         """
         povfile.write(rotation_block_a)
 
-        # declare a 30 frame rotation around x for file `benzene.ini`
-        # To eventually render a sequence of 30 frames, this requires a run
+        # Declare a 36 frame rotation around x for file `benzene.ini`
+        # To eventually render a sequence of 36 frames, this requires a run
         # `povray benzene.ini` instead of `povray benzene.pov`.  Ascertain the
         # simultaneous presence of `benzene.pov and `benzene.ini` in the very
         # same writeable folder.)
@@ -269,7 +269,7 @@ rotate <clock*360, 0, 0>
 Width = 640
 Height = 420
 Initial_Frame = 1
-Final_Frame = 30
+Final_Frame = 36
 Antialias=on"""
 
         with open(output_ini, mode="w", encoding="utf8") as newfile:
