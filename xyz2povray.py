@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Python script converts .xyz geometry file into a Pov-Ray .pov file."""
 
+import argparse
 import numpy as np
 import numpy.linalg as npl
 
@@ -115,13 +116,38 @@ def fitPlane(positions):
     return normal
 
 
+def get_args():
+    """Get command-line arguments"""
+
+    parser = argparse.ArgumentParser(
+        description="""This Python script converts a .xyz model into a PovRay
+        scene.  Hence for file `example.xyz`, there will be `example.pov for
+        an individual frame.  New file `example.ini` (in simultaneous presence
+        of `example.pov`) allows to generate a sequence of frames (by call of
+        `povray example.ini`) to rotate the molecule around x-axis (Pov-Ray
+        coordinate system)."""
+    )
+
+    parser.add_argument("source_file",
+                        metavar="FILE",
+                        help="Input .xyz file about the structure.")
+
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
 
-    molecule = get_structure('benzene.xyz')
+    args = get_args()
+    input_file = str(args.source_file)
+    stem_of_name = input_file.rpartition(".")[0]
+    output_pov = ".".join([stem_of_name, "pov"])
+    output_ini = ".".join([stem_of_name, "ini"])
+
+    molecule = get_structure(input_file)
     center_of_mass = get_center_of_mass(molecule)
     move2origin(molecule, center_of_mass)
 
-    with open("benzene.pov", mode="w", encoding="utf8") as povfile:
+    with open(output_pov, mode="w", encoding="utf8") as povfile:
 
         positions = np.array([atom.position for atom in molecule])
         normal = fitPlane(
@@ -237,13 +263,14 @@ rotate <clock*360, 0, 0>
         # `povray benzene.ini` instead of `povray benzene.pov`.  Ascertain the
         # simultaneous presence of `benzene.pov and `benzene.ini` in the very
         # same writeable folder.)
-        rotation_block_b = """
-Input_File_Name=benzene.pov
+        rotation_block_b = ""
+        rotation_block_b += "".join(['Input_File_Name="', output_pov, '"'])
+        rotation_block_b +="""
 Width = 640
 Height = 420
 Initial_Frame = 1
 Final_Frame = 30
-Antialias=on
-        """
-        with open("benzene.ini", mode="w", encoding="utf8") as newfile:
+Antialias=on"""
+
+        with open(output_ini, mode="w", encoding="utf8") as newfile:
             newfile.write(rotation_block_b)
