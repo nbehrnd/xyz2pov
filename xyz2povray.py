@@ -18,6 +18,10 @@ class Atom:
             self.mass = 12
             self.rad = 0.25
             self.rgb = [0.4, 0.4, 0.4]
+        elif self.species == "N":
+            self.mass = 14
+            self.rad = 0.25
+            self.rgb = [0.19, 0.31, 0.97]  # Jmol / 255]
         else:
             self.mass = 1
             self.rad = 0.25
