@@ -26,6 +26,10 @@ class Atom:
             self.mass = 16
             self.rad = 0.25
             self.rgb = [1.00, 0.05, 0.05]
+        elif self.species == "S":
+            self.mass = 32
+            self.rad = 0.25
+            self.rgb = [1.00, 1.00, 0.19]
         else:
             self.mass = 1
             self.rad = 0.25
