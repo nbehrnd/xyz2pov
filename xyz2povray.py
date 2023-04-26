@@ -274,6 +274,7 @@ def plausible_bond(atom1, atom2):
 
     print("echo from plausible_bond")
     print(f"{atom1.species} and {atom2.species}")
+    check_value = False
 
     # copy-paste from later section, start:
     print(f"atom1: {atom1.species}  radius [pm]: {atom1.covalent_radius}  sd [pm]: {atom1.sd_covalent_radius}")
@@ -298,9 +299,12 @@ def plausible_bond(atom1, atom2):
     observed_distance = abs(npl.norm(atom1.position - atom2.position))
     if (observed_distance <= ubound_threshold_with_sd):
         print("This qualifies as a bond.")
+        check_value = True
     else:
         print("Warning: This does not qualify as a bond.")
     print("")
+
+    return check_value
     # copy-paste from later section, end.
 # a second insert, to end.
 
@@ -410,14 +414,15 @@ declare molecule = union {
             for atom2 in molecule:
                 bond = Bond(atom1, atom2)
                 if (atom1 != atom2 and
-                        abs(npl.norm(atom1.position - atom2.position)) <= 1.6
+                        # abs(npl.norm(atom1.position - atom2.position)) <= 1.6
+                        plausible_bond(atom1, atom2)
                         and bond.ID not in bond_list
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
                     povfile.write(bond.toPOV())
 
                     # doodle, to start:
-                    plausible_bond(atom1, atom2)
+                    # plausible_bond(atom1, atom2)
                     # doodle, to end.
 
         povfile.write('\n}')
