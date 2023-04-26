@@ -261,6 +261,48 @@ def get_args():
 
     return parser.parse_args()
 
+# a second insert, to start:
+def plausible_bond(atom1, atom2):
+    """ check if two atoms could form a bond
+
+    By comparison of the sum of the corresponding covalent radii with
+    the distance derived from data in the .xyz file, this procedure
+    shall check if the two are close enough to form any bond (i.e.,
+    bond order is irrelvant).  For testing purpose, the output now is
+    a print to the screen; the intent for later is the provision of a
+    return value."""
+
+    print("echo from plausible_bond")
+    print(f"{atom1.species} and {atom2.species}")
+
+    # copy-paste from later section, start:
+    print(f"atom1: {atom1.species}  radius [pm]: {atom1.covalent_radius}  sd [pm]: {atom1.sd_covalent_radius}")
+    print(f"atom2: {atom2.species}  radius [pm]: {atom2.covalent_radius}  sd [pm]: {atom2.sd_covalent_radius}")
+
+    # computing the sum of the radii:
+    theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
+    print(f"threshold [\AA]:                {theoretical_threshold}")
+    print(f"observed_distance [\AA]:        {abs(npl.norm(atom1.position - atom2.position))}")
+
+    # add the sd into the picture
+    # one sigma: mean value +/- 68% of the Gaussian distribution
+    # two sigma: mean value +/- 95% of the Gaussian distribution
+    # three sigma:          +/- 99.7% of the Gaussian distribution
+    sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
+    print(f"sum of sd_covalent_radii [\AA]: {sum_sd}")
+    ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
+    print(f"ubound (+ 3 sd on top) [\AA]  : {ubound_threshold_with_sd}")
+
+    # a covalent bound now is set .true. below the limit of ubound
+    # (different to xyz2mol, bond order is not of interest here)
+    observed_distance = abs(npl.norm(atom1.position - atom2.position))
+    if (observed_distance <= ubound_threshold_with_sd):
+        print("This qualifies as a bond.")
+    else:
+        print("Warning: This does not qualify as a bond.")
+    print("")
+    # copy-paste from later section, end.
+# a second insert, to end.
 
 if __name__ == '__main__':
 
@@ -375,31 +417,7 @@ declare molecule = union {
                     povfile.write(bond.toPOV())
 
                     # doodle, to start:
-                    print(f"atom1: {atom1.species}  radius [pm]: {atom1.covalent_radius}  sd [pm]: {atom1.sd_covalent_radius}")
-                    print(f"atom2: {atom2.species}  radius [pm]: {atom2.covalent_radius}  sd [pm]: {atom2.sd_covalent_radius}")
-
-                    # computing the sum of the radii:
-                    theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
-                    print(f"threshold [\AA]:                {theoretical_threshold}")
-                    print(f"observed_distance [\AA]:        {abs(npl.norm(atom1.position - atom2.position))}")
-
-                    # add the sd into the picture
-                    # one sigma: mean value +/- 68% of the Gaussian distribution
-                    # two sigma: mean value +/- 95% of the Gaussian distribution
-                    # three sigma:          +/- 99.7% of the Gaussian distribution
-                    sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
-                    print(f"sum of sd_covalent_radii [\AA]: {sum_sd}")
-                    ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
-                    print(f"ubound (+ 3 sd on top) [\AA]  : {ubound_threshold_with_sd}")
-
-                    # a covalent bound now is set .true. below the limit of ubound
-                    # (different to xyz2mol, bond order is not of interest here)
-                    observed_distance = abs(npl.norm(atom1.position - atom2.position))
-                    if (observed_distance <= ubound_threshold_with_sd):
-                        print("This qualifies as a bond.")
-                    else:
-                        print("Warning: This does not qualify as a bond.")
-                    print("")
+                    plausible_bond(atom1, atom2)
                     # doodle, to end.
 
         povfile.write('\n}')
