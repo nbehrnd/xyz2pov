@@ -156,7 +156,8 @@ class Atom:
             self.species, self.mass, self.tag, self.position[0],
             self.position[1], self.position[2])
 
-    def toPOV(self):
+    def to_pov(self):
+        """assemble atom coordinates and RGB for the .pov file"""
         return "Atom(<{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f}, {:4.3f}, {:4.3f}>, {:4.2f})\n".format(
             self.position[0], self.position[1], self.position[2], self.rgb[0],
             self.rgb[1], self.rgb[2], self.rad)
@@ -173,7 +174,7 @@ class Bond():
         self.atom_b = atom_b
         self.ID = str(atom_a.tag) + str(atom_b.tag)
 
-    def toPOV(self):
+    def to_pov(self):
         halfway_point = (self.atom_a.position -
                          self.atom_b.position) / 2 + self.atom_b.position
 
@@ -194,7 +195,7 @@ class Bond():
 def get_structure(data):
     """access atomic coordinates"""
     atoms = np.array([])
-    with open(data) as xyz:
+    with open(data, mode="r", encoding="utf8") as xyz:
         for ii, line in enumerate(xyz):
             line = line.split()
             if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
@@ -270,7 +271,7 @@ def plausible_bond(atom1, atom2):
     By comparison of the sum of the corresponding covalent radii with
     the distance derived from data in the .xyz file, this procedure
     shall check if the two are close enough to form any bond (i.e.,
-    bond order is irrelvant).  For testing purpose, the output now is
+    bond order is irrelevant).  For testing purpose, the output now is
     a print to the screen; the intent for later is the provision of a
     return value."""
 
@@ -282,22 +283,22 @@ def plausible_bond(atom1, atom2):
 
     # computing the sum of the radii:
     theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
-    print(f"threshold [\AA]:                {theoretical_threshold}")
-    print(f"observed_distance [\AA]:        {abs(npl.norm(atom1.position - atom2.position))}")
+    print(f"threshold [A]:                {theoretical_threshold}")
+    print(f"observed_distance [A]:        {abs(npl.norm(atom1.position - atom2.position))}")
 
     # add the sd into the picture
     # one sigma: mean value +/- 68% of the Gaussian distribution
     # two sigma: mean value +/- 95% of the Gaussian distribution
     # three sigma:          +/- 99.7% of the Gaussian distribution
     sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
-    print(f"sum of sd_covalent_radii [\AA]: {sum_sd}")
+    print(f"sum of sd_covalent_radii [A]: {sum_sd}")
     ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
-    print(f"ubound (+ 3 sd on top) [\AA]  : {ubound_threshold_with_sd}")
+    print(f"ubound (+ 3 sd on top) [A]:   {ubound_threshold_with_sd}")
 
     # a covalent bound now is set .true. below the limit of ubound
     # (different to xyz2mol, bond order is not of interest here)
     observed_distance = abs(npl.norm(atom1.position - atom2.position))
-    if (observed_distance <= ubound_threshold_with_sd):
+    if observed_distance <= ubound_threshold_with_sd:
         print("This qualifies as a bond.")
         check_value = True
     else:
@@ -406,7 +407,7 @@ declare molecule = union {
         povfile.write(default_settings)
 
         for atom in molecule:
-            povfile.write(atom.toPOV())
+            povfile.write(atom.to_pov())
 
         bond_list = [
         ]  #keeps track of the bond halfwaypoints just to avoid double counting
@@ -419,15 +420,10 @@ declare molecule = union {
                         and bond.ID not in bond_list
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
-                    povfile.write(bond.toPOV())
-
-                    # doodle, to start:
-                    # plausible_bond(atom1, atom2)
-                    # doodle, to end.
-
+                    povfile.write(bond.to_pov())
         povfile.write('\n}')
 
-        # declare possibilty for a rotation around x in the .pov of scene
+        # declare possibility for a rotation around x in the .pov of scene
         rotation_block_a = """
 union{
 molecule
@@ -440,7 +436,7 @@ rotate <clock*360, 0, 0>
         # To eventually render a sequence of 36 frames, this requires a run
         # `povray benzene.ini` instead of `povray benzene.pov`.  Ascertain the
         # simultaneous presence of `benzene.pov and `benzene.ini` in the very
-        # same writeable folder.)
+        # same folder with permission to write records.)
         rotation_block_b = ""
         rotation_block_b += "".join(['Input_File_Name="', output_pov, '"'])
         rotation_block_b +="""
