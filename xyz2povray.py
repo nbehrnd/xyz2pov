@@ -13,12 +13,12 @@ class Atom:
     # RGB values of the Jmol scheme
     # reference: https://jmol.sourceforge.net/jscolors/
     properties = {
-        'H': {'mass':   1, 'rad': 0.25, 'rgb': [1.00, 1.00, 1.00]},
+        'H': {'mass':   1, 'rad': 0.25, 'rgb': [1.00, 1.00, 1.00], 'r': 31, 'sd':  5},
        'He': {'mass':   4, 'rad': 0.25, 'rgb': [0.85, 1.00, 1.00]},
        'Li': {'mass':   6, 'rad': 0.25, 'rgb': [0.80, 0.51, 1.00]},
        'Be': {'mass':   9, 'rad': 0.25, 'rgb': [0.76, 1.00, 0.00]},
         'B': {'mass':  11, 'rad': 0.25, 'rgb': [1.00, 0.71, 0.71]},
-        'C': {'mass':  12, 'rad': 0.25, 'rgb': [0.56, 0.56, 0.56]},
+        'C': {'mass':  12, 'rad': 0.25, 'rgb': [0.56, 0.56, 0.56], 'r': 76, 'sd':  1},
         'N': {'mass':  14, 'rad': 0.25, 'rgb': [0.19, 0.31, 0.97]},
         'O': {'mass':  16, 'rad': 0.25, 'rgb': [1.00, 0.05, 0.05]},
         'F': {'mass':  19, 'rad': 0.25, 'rgb': [0.56, 0.88, 0.31]},
@@ -124,10 +124,13 @@ class Atom:
        'Mt': {'mass': 278, 'rad': 0.25, 'rgb': [0.92, 0.00, 0.15]},
     }
 
-    def __init__(self, species, tag, position=[0, 0, 0]):
+    def __init__(self, species, tag, position=[0, 0, 0], covalent_radius=0.0,
+        sd_covalent_radius=0.0):
         self.species = species
         self.tag = tag
         self.position = np.array(position)
+        self.covalent_radius = covalent_radius
+        self.sd_covalent_radius = sd_covalent_radius
 
         # set the properties based on the species
         if self.species in Atom.properties:
@@ -135,10 +138,14 @@ class Atom:
             self.mass = prop['mass']
             self.rad = prop['rad']
             self.rgb = prop['rgb']
+            self.covalent_radius = prop['r']
+            self.sd_covalent_radius = prop['sd']
         else:  # default to hydrogen
             self.mass = 1
             self.rad = 0.25
             self.rgb = [0.75, 0.75, 0.75]
+            self.covalent_radius = 31
+            self.sd_covalent_radius = 5
             print(f"WARNING: structure contains {self.species}, an atom unknown to the program.")
 
 
@@ -366,6 +373,34 @@ declare molecule = union {
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
                     povfile.write(bond.toPOV())
+
+                    # doodle, to start:
+                    print(f"atom1: {atom1.species}  radius [pm]: {atom1.covalent_radius}  sd [pm]: {atom1.sd_covalent_radius}")
+                    print(f"atom2: {atom2.species}  radius [pm]: {atom2.covalent_radius}  sd [pm]: {atom2.sd_covalent_radius}")
+
+                    # computing the sum of the radii:
+                    theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
+                    print(f"threshold [\AA]:                {theoretical_threshold}")
+                    print(f"observed_distance [\AA]:        {abs(npl.norm(atom1.position - atom2.position))}")
+
+                    # add the sd into the picture
+                    # one sigma: mean value +/- 68% of the Gaussian distribution
+                    # two sigma: mean value +/- 95% of the Gaussian distribution
+                    # three sigma:          +/- 99.7% of the Gaussian distribution
+                    sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
+                    print(f"sum of sd_covalent_radii [\AA]: {sum_sd}")
+                    ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
+                    print(f"ubound (+ 3 sd on top) [\AA]  : {ubound_threshold_with_sd}")
+
+                    # a covalent bound now is set .true. below the limit of ubound
+                    # (different to xyz2mol, bond order is not of interest here)
+                    observed_distance = abs(npl.norm(atom1.position - atom2.position))
+                    if (observed_distance <= ubound_threshold_with_sd):
+                        print("This qualifies as a bond.")
+                    else:
+                        print("Warning: This does not qualify as a bond.")
+                    print("")
+                    # doodle, to end.
 
         povfile.write('\n}')
 
