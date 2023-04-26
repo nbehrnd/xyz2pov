@@ -272,8 +272,6 @@ def plausible_bond(atom1, atom2):
     a print to the screen; the intent for later is the provision of a
     return value."""
 
-    print("echo from plausible_bond")
-    print(f"{atom1.species} and {atom2.species}")
     check_value = False
 
     # copy-paste from later section, start:
