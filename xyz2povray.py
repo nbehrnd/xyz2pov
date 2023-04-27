@@ -264,7 +264,7 @@ def get_args():
 
     return parser.parse_args()
 
-# a second insert, to start:
+
 def plausible_bond(atom1, atom2):
     """ check if two atoms could form a bond
 
@@ -277,37 +277,42 @@ def plausible_bond(atom1, atom2):
 
     check_value = False
 
-    # copy-paste from later section, start:
-    print(f"atom1: {atom1.species}  radius [pm]: {atom1.covalent_radius}  sd [pm]: {atom1.sd_covalent_radius}")
-    print(f"atom2: {atom2.species}  radius [pm]: {atom2.covalent_radius}  sd [pm]: {atom2.sd_covalent_radius}")
+    print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
+ radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
+ 
+    print(f"index: {atom2.tag:4} type: {atom2.species:>2}\
+ radius: {atom2.covalent_radius:>3} pm sd(radius): {atom2.sd_covalent_radius:3} pm")
 
     # computing the sum of the radii:
+    observed_distance = abs(npl.norm(atom1.position - atom2.position))
     theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
-    print(f"threshold [A]:                {theoretical_threshold}")
-    print(f"observed_distance [A]:        {abs(npl.norm(atom1.position - atom2.position))}")
 
     # add the sd into the picture
     # one sigma: mean value +/- 68% of the Gaussian distribution
     # two sigma: mean value +/- 95% of the Gaussian distribution
     # three sigma:          +/- 99.7% of the Gaussian distribution
     sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
-    print(f"sum of sd_covalent_radii [A]: {sum_sd}")
     ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
-    print(f"ubound (+ 3 sd on top) [A]:   {ubound_threshold_with_sd}")
+
+    print(f"{'tabulated threshold (sum of both radii):':47} {theoretical_threshold:7.2f} A")
+    print(f"{'sum of both sd_covalent_radii:':47} {sum_sd:7.2f} A")
+    print(57*"-")
+    print(f"{'upper bound (sum radii + 3 sd of radii):':47} {ubound_threshold_with_sd:7.2f} A")
+    print(57*"-")
+    print(f"{'Interatomic distance calculated from .xyz file:':47} {observed_distance:7.2f} A")
 
     # a covalent bound now is set .true. below the limit of ubound
     # (different to xyz2mol, bond order is not of interest here)
     observed_distance = abs(npl.norm(atom1.position - atom2.position))
     if observed_distance <= ubound_threshold_with_sd:
-        print("This qualifies as a bond.")
+        print("This distance is less than the sum of the covalent radii.")
         check_value = True
     else:
-        print("Warning: This does not qualify as a bond.")
+        print("Warning: This distance is too large for a covalent bond.")
     print("")
 
     return check_value
-    # copy-paste from later section, end.
-# a second insert, to end.
+
 
 if __name__ == '__main__':
 
