@@ -261,11 +261,15 @@ def get_args():
     parser.add_argument("source_file",
                         metavar="FILE",
                         help="Input .xyz file about the structure.")
+    parser.add_argument("-v", "--verbose",
+                        default=False,
+                        action='store_true',
+                        help="Write an optional detailed report to the CLI.")
 
     return parser.parse_args()
 
 
-def plausible_bond(atom1, atom2):
+def plausible_bond(atom1, atom2,report_level=False):
     """ check if two atoms could form a bond
 
     By comparison of the sum of the corresponding covalent radii with
@@ -276,13 +280,6 @@ def plausible_bond(atom1, atom2):
     return value."""
 
     check_value = False
-
-    print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
- radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
- 
-    print(f"index: {atom2.tag:4} type: {atom2.species:>2}\
- radius: {atom2.covalent_radius:>3} pm sd(radius): {atom2.sd_covalent_radius:3} pm")
-
     # computing the sum of the radii:
     observed_distance = abs(npl.norm(atom1.position - atom2.position))
     theoretical_threshold = (atom1.covalent_radius + atom2.covalent_radius) / 100
@@ -294,22 +291,32 @@ def plausible_bond(atom1, atom2):
     sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
     ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
 
-    print(f"{'tabulated threshold (sum of both radii):':47} {theoretical_threshold:7.2f} A")
-    print(f"{'sum of both sd_covalent_radii:':47} {sum_sd:7.2f} A")
-    print(57*"-")
-    print(f"{'upper bound (sum radii + 3 sd of radii):':47} {ubound_threshold_with_sd:7.2f} A")
-    print(57*"-")
-    print(f"{'Interatomic distance calculated from .xyz file:':47} {observed_distance:7.2f} A")
-
     # a covalent bound now is set .true. below the limit of ubound
     # (different to xyz2mol, bond order is not of interest here)
     observed_distance = abs(npl.norm(atom1.position - atom2.position))
     if observed_distance <= ubound_threshold_with_sd:
-        print("This distance is less than the sum of the covalent radii.")
         check_value = True
-    else:
-        print("Warning: This distance is too large for a covalent bond.")
-    print("")
+
+    report_level = args.verbose
+    if report_level:
+        print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
+     radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
+
+        print(f"index: {atom2.tag:4} type: {atom2.species:>2}\
+     radius: {atom2.covalent_radius:>3} pm sd(radius): {atom2.sd_covalent_radius:3} pm")
+
+        print(f"{'tabulated threshold (sum of both radii):':47} {theoretical_threshold:7.2f} A")
+        print(f"{'sum of both sd_covalent_radii:':47} {sum_sd:7.2f} A")
+        print(57*"-")
+        print(f"{'upper bound (sum radii + 3 sd of radii):':47} {ubound_threshold_with_sd:7.2f} A")
+        print(57*"-")
+        print(f"{'Interatomic distance calculated from .xyz file:':47} {observed_distance:7.2f} A")
+
+        if check_value:
+            print("This distance is less than the sum of the covalent radii.")
+        else:
+            print("Warning: This distance is too large for a covalent bond.")
+        print("")
 
     return check_value
 
