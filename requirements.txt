@@ -1,0 +1,3 @@
+# Written for Linux Debian 12/bookworm with Python 3.11.2; equally
+# known to work in Linux Xubuntu 22.04.2 Jammy with Python 3.10.6.
+numpy==1.24.3
