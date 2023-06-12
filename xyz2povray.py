@@ -301,7 +301,7 @@ def plausible_bond(atom1, atom2,report_level=False):
     if observed_distance <= ubound_threshold_with_sd:
         check_value = True
 
-    report_level = args.verbose
+    # report_level = args.verbose
     if report_level:
         print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
      radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
@@ -325,7 +325,8 @@ def plausible_bond(atom1, atom2,report_level=False):
     return check_value
 
 
-if __name__ == '__main__':
+def main():
+    """Join the functionalities"""
     args = get_args()
     input_file = str(args.source_file.name)
     stem_of_name = input_file.rpartition(".")[0]
@@ -431,7 +432,7 @@ declare molecule = union {
                 bond = Bond(atom1, atom2)
                 if (atom1 != atom2 and
                         # abs(npl.norm(atom1.position - atom2.position)) <= 1.6
-                        plausible_bond(atom1, atom2)
+                        plausible_bond(atom1, atom2, args.verbose)
                         and bond.ID not in bond_list
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
@@ -463,3 +464,7 @@ Antialias=on"""
 
         with open(output_ini, mode="w", encoding="utf8") as newfile:
             newfile.write(rotation_block_b)
+
+
+if __name__ == '__main__':
+    main()
