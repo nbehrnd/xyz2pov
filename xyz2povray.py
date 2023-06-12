@@ -1,9 +1,36 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """Python script converts .xyz geometry file into a Pov-Ray .pov file."""
 
 import argparse
 import numpy as np
 import numpy.linalg as npl
+
+
+def get_args():
+    """Get command-line arguments"""
+
+    parser = argparse.ArgumentParser(
+        description="""This Python script converts a .xyz model into a PovRay
+        scene.  Hence for file `example.xyz`, there will be `example.pov for
+        an individual frame.  New file `example.ini` (in simultaneous presence
+        of `example.pov`) allows to generate a sequence of frames (by call of
+        `povray example.ini`) to rotate the molecule around x-axis (Pov-Ray
+        coordinate system).""",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument("source_file",
+                        metavar="FILE",
+                        type=argparse.FileType('rt'),
+                        help="Input .xyz file about the structure.")
+
+    parser.add_argument("-v", "--verbose",
+                        default=False,
+                        action='store_true',
+                        help="Write an optional detailed report to the CLI.")
+
+    return parser.parse_args()
 
 
 class Atom:
@@ -196,12 +223,12 @@ def get_structure(data):
     """access atomic coordinates"""
     atoms = np.array([])
     with open(data, mode="r", encoding="utf8") as xyz:
-        for ii, line in enumerate(xyz):
+        for i, line in enumerate(xyz):
             line = line.split()
             if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
                 atoms = np.append(
                     atoms,
-                    Atom(line[0], ii - 2,
+                    Atom(line[0], i - 2,
                          [float(line[1]),
                           float(line[2]),
                           float(line[3])]))
@@ -246,29 +273,6 @@ def fitPlane(positions):
     return normal
 
 
-def get_args():
-    """Get command-line arguments"""
-
-    parser = argparse.ArgumentParser(
-        description="""This Python script converts a .xyz model into a PovRay
-        scene.  Hence for file `example.xyz`, there will be `example.pov for
-        an individual frame.  New file `example.ini` (in simultaneous presence
-        of `example.pov`) allows to generate a sequence of frames (by call of
-        `povray example.ini`) to rotate the molecule around x-axis (Pov-Ray
-        coordinate system)."""
-    )
-
-    parser.add_argument("source_file",
-                        metavar="FILE",
-                        help="Input .xyz file about the structure.")
-    parser.add_argument("-v", "--verbose",
-                        default=False,
-                        action='store_true',
-                        help="Write an optional detailed report to the CLI.")
-
-    return parser.parse_args()
-
-
 def plausible_bond(atom1, atom2,report_level=False):
     """ check if two atoms could form a bond
 
@@ -297,7 +301,7 @@ def plausible_bond(atom1, atom2,report_level=False):
     if observed_distance <= ubound_threshold_with_sd:
         check_value = True
 
-    report_level = args.verbose
+    # report_level = args.verbose
     if report_level:
         print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
      radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
@@ -321,10 +325,10 @@ def plausible_bond(atom1, atom2,report_level=False):
     return check_value
 
 
-if __name__ == '__main__':
-
+def main():
+    """Join the functionalities"""
     args = get_args()
-    input_file = str(args.source_file)
+    input_file = str(args.source_file.name)
     stem_of_name = input_file.rpartition(".")[0]
     output_pov = ".".join([stem_of_name, "pov"])
     output_ini = ".".join([stem_of_name, "ini"])
@@ -428,7 +432,7 @@ declare molecule = union {
                 bond = Bond(atom1, atom2)
                 if (atom1 != atom2 and
                         # abs(npl.norm(atom1.position - atom2.position)) <= 1.6
-                        plausible_bond(atom1, atom2)
+                        plausible_bond(atom1, atom2, args.verbose)
                         and bond.ID not in bond_list
                         and bond.ID[::-1] not in bond_list):
                     bond_list.append(bond.ID)
@@ -460,3 +464,7 @@ Antialias=on"""
 
         with open(output_ini, mode="w", encoding="utf8") as newfile:
             newfile.write(rotation_block_b)
+
+
+if __name__ == '__main__':
+    main()
