@@ -223,12 +223,12 @@ def get_structure(data):
     """access atomic coordinates"""
     atoms = np.array([])
     with open(data, mode="r", encoding="utf8") as xyz:
-        for ii, line in enumerate(xyz):
+        for i, line in enumerate(xyz):
             line = line.split()
             if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
                 atoms = np.append(
                     atoms,
-                    Atom(line[0], ii - 2,
+                    Atom(line[0], i - 2,
                          [float(line[1]),
                           float(line[2]),
                           float(line[3])]))
