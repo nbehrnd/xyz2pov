@@ -18,17 +18,23 @@ def get_args():
         of `example.pov`) allows to generate a sequence of frames (by call of
         `povray example.ini`) to rotate the molecule around x-axis (Pov-Ray
         coordinate system).""",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument("source_file",
-                        metavar="FILE",
-                        type=argparse.FileType('rt'),
-                        help="Input .xyz file about the structure.")
+    parser.add_argument(
+        "source_file",
+        metavar="FILE",
+        type=argparse.FileType("rt"),
+        help="Input .xyz file about the structure.",
+    )
 
-    parser.add_argument("-v", "--verbose",
-                        default=False,
-                        action='store_true',
-                        help="Write an optional detailed report to the CLI.")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        default=False,
+        action="store_true",
+        help="Write an optional detailed report to the CLI.",
+    )
 
     return parser.parse_args()
 
@@ -41,6 +47,9 @@ class Atom:
     #   https://jmol.sourceforge.net/jscolors/ (accessed [2023-04-25 Tue])
     # + average covalent radii as referenced in pm on Wikipedia, see
     #   https://en.wikipedia.org/wiki/Covalent_radius (accessed [2023-04-26 Wed])
+
+    # instruct black to not reformat the following section:
+    # fmt: off
     properties = {
         'H': {'mass':   1, 'rad': 0.25, 'rgb': [1.00, 1.00, 1.00], 'r': 31, 'sd':  5},
        'He': {'mass':   4, 'rad': 0.25, 'rgb': [0.85, 1.00, 1.00], 'r': 28, 'sd':  0},
@@ -152,9 +161,17 @@ class Atom:
 #       'Hs': {'mass': 269, 'rad': 0.25, 'rgb': [0.90, 0.00, 0.18]},
 #       'Mt': {'mass': 278, 'rad': 0.25, 'rgb': [0.92, 0.00, 0.15]},
     }
+    # instruct black to resume
+    # fmt: on
 
-    def __init__(self, species, tag, position=[0, 0, 0], covalent_radius=0.0,
-        sd_covalent_radius=0.0):
+    def __init__(
+        self,
+        species,
+        tag,
+        position=[0, 0, 0],
+        covalent_radius=0.0,
+        sd_covalent_radius=0.0,
+    ):
         self.species = species
         self.tag = tag
         self.position = np.array(position)
@@ -164,36 +181,48 @@ class Atom:
         # set the properties based on the species
         if self.species in Atom.properties:
             prop = Atom.properties[self.species]
-            self.mass = prop['mass']
-            self.rad = prop['rad']
-            self.rgb = prop['rgb']
-            self.covalent_radius = prop['r']
-            self.sd_covalent_radius = prop['sd']
+            self.mass = prop["mass"]
+            self.rad = prop["rad"]
+            self.rgb = prop["rgb"]
+            self.covalent_radius = prop["r"]
+            self.sd_covalent_radius = prop["sd"]
         else:  # default to hydrogen
             self.mass = 1
             self.rad = 0.25
             self.rgb = [0.75, 0.75, 0.75]
             self.covalent_radius = 31
             self.sd_covalent_radius = 5
-            print(f"WARNING: structure contains {self.species}, an atom unknown to the program.")
-
+            print(
+                f"WARNING: structure contains {self.species}, an atom unknown to the program."
+            )
 
     def __repr__(self):
         return "%r %r tag: %r pos: %r, %r, %r" % (
-            self.species, self.mass, self.tag, self.position[0],
-            self.position[1], self.position[2])
+            self.species,
+            self.mass,
+            self.tag,
+            self.position[0],
+            self.position[1],
+            self.position[2],
+        )
 
     def to_pov(self):
         """assemble atom coordinates and RGB for the .pov file"""
         return "Atom(<{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f}, {:4.3f}, {:4.3f}>, {:4.2f})\n".format(
-            self.position[0], self.position[1], self.position[2], self.rgb[0],
-            self.rgb[1], self.rgb[2], self.rad)
+            self.position[0],
+            self.position[1],
+            self.position[2],
+            self.rgb[0],
+            self.rgb[1],
+            self.rgb[2],
+            self.rad,
+        )
 
     def translate(self, vector):
         self.position -= vector
 
 
-class Bond():
+class Bond:
     """define appearance of bonds as struts between atom_a and atom_b"""
 
     def __init__(self, atom_a, atom_b):
@@ -202,20 +231,33 @@ class Bond():
         self.ID = str(atom_a.tag) + str(atom_b.tag)
 
     def to_pov(self):
-        halfway_point = (self.atom_a.position -
-                         self.atom_b.position) / 2 + self.atom_b.position
+        halfway_point = (
+            self.atom_a.position - self.atom_b.position
+        ) / 2 + self.atom_b.position
 
         atom_a_cylinder = "Bond(<{:6.3f},{:6.3f},{:6.3f}>, <{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f},{:4.3f},{:4.3f}>, 0.25)\n".format(
-            self.atom_a.position[0], self.atom_a.position[1],
-            self.atom_a.position[2], halfway_point[0], halfway_point[1],
-            halfway_point[2], self.atom_a.rgb[0], self.atom_a.rgb[1],
-            self.atom_a.rgb[2])
+            self.atom_a.position[0],
+            self.atom_a.position[1],
+            self.atom_a.position[2],
+            halfway_point[0],
+            halfway_point[1],
+            halfway_point[2],
+            self.atom_a.rgb[0],
+            self.atom_a.rgb[1],
+            self.atom_a.rgb[2],
+        )
 
         atom_b_cylinder = "Bond(<{:6.3f},{:6.3f},{:6.3f}>, <{:6.3f},{:6.3f},{:6.3f}>, <{:4.3f},{:4.3f},{:4.3f}>, 0.25)\n".format(
-            self.atom_b.position[0], self.atom_b.position[1],
-            self.atom_b.position[2], halfway_point[0], halfway_point[1],
-            halfway_point[2], self.atom_b.rgb[0], self.atom_b.rgb[1],
-            self.atom_b.rgb[2])
+            self.atom_b.position[0],
+            self.atom_b.position[1],
+            self.atom_b.position[2],
+            halfway_point[0],
+            halfway_point[1],
+            halfway_point[2],
+            self.atom_b.rgb[0],
+            self.atom_b.rgb[1],
+            self.atom_b.rgb[2],
+        )
         return atom_a_cylinder + atom_b_cylinder
 
 
@@ -225,13 +267,13 @@ def get_structure(data):
     with open(data, mode="r", encoding="utf8") as xyz:
         for i, line in enumerate(xyz):
             line = line.split()
-            if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
+            if len(line) == 4:  # and line[0] == 'C':       #no hydrogen
                 atoms = np.append(
                     atoms,
-                    Atom(line[0], i - 2,
-                         [float(line[1]),
-                          float(line[2]),
-                          float(line[3])]))
+                    Atom(
+                        line[0], i - 2, [float(line[1]), float(line[2]), float(line[3])]
+                    ),
+                )
     return atoms
 
 
@@ -273,8 +315,8 @@ def fitPlane(positions):
     return normal
 
 
-def plausible_bond(atom1, atom2,report_level=False):
-    """ check if two atoms could form a bond
+def plausible_bond(atom1, atom2, report_level=False):
+    """check if two atoms could form a bond
 
     By comparison of the sum of the corresponding covalent radii with
     the distance derived from data in the .xyz file, this procedure
@@ -293,7 +335,7 @@ def plausible_bond(atom1, atom2,report_level=False):
     # two sigma: mean value +/- 95% of the Gaussian distribution
     # three sigma:          +/- 99.7% of the Gaussian distribution
     sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
-    ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
+    ubound_threshold_with_sd = theoretical_threshold + (3 * sum_sd)
 
     # a covalent bound now is set .true. below the limit of ubound
     # (different to xyz2mol, bond order is not of interest here)
@@ -303,18 +345,28 @@ def plausible_bond(atom1, atom2,report_level=False):
 
     # report_level = args.verbose
     if report_level:
-        print(f"index: {atom1.tag:4} type: {atom1.species:>2}\
-     radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm")
+        print(
+            f"index: {atom1.tag:4} type: {atom1.species:>2}\
+     radius: {atom1.covalent_radius:>3} pm sd(radius): {atom1.sd_covalent_radius:3} pm"
+        )
 
-        print(f"index: {atom2.tag:4} type: {atom2.species:>2}\
-     radius: {atom2.covalent_radius:>3} pm sd(radius): {atom2.sd_covalent_radius:3} pm")
+        print(
+            f"index: {atom2.tag:4} type: {atom2.species:>2}\
+     radius: {atom2.covalent_radius:>3} pm sd(radius): {atom2.sd_covalent_radius:3} pm"
+        )
 
-        print(f"{'tabulated threshold (sum of both radii):':47} {theoretical_threshold:7.2f} A")
+        print(
+            f"{'tabulated threshold (sum of both radii):':47} {theoretical_threshold:7.2f} A"
+        )
         print(f"{'sum of both sd_covalent_radii:':47} {sum_sd:7.2f} A")
-        print(57*"-")
-        print(f"{'upper bound (sum radii + 3 sd of radii):':47} {ubound_threshold_with_sd:7.2f} A")
-        print(57*"-")
-        print(f"{'Interatomic distance calculated from .xyz file:':47} {observed_distance:7.2f} A")
+        print(57 * "-")
+        print(
+            f"{'upper bound (sum radii + 3 sd of radii):':47} {ubound_threshold_with_sd:7.2f} A"
+        )
+        print(57 * "-")
+        print(
+            f"{'Interatomic distance calculated from .xyz file:':47} {observed_distance:7.2f} A"
+        )
 
         if check_value:
             print("This distance is less than the sum of the covalent radii.")
@@ -340,11 +392,9 @@ def main():
     with open(output_pov, mode="w", encoding="utf8") as povfile:
 
         positions = np.array([atom.position for atom in molecule])
-        normal = fitPlane(
-            positions) * 10  #direction from which the camera is looking
+        normal = fitPlane(positions) * 10  # direction from which the camera is looking
 
-        distances = np.array(
-            [abs(npl.norm(atom.position)) for atom in molecule])
+        distances = np.array([abs(npl.norm(atom.position)) for atom in molecule])
 
         visibility_scaling = np.max(distances) + 0.5
 
@@ -360,17 +410,21 @@ def main():
         l2_azimuthal = azimuthal - np.pi / 180.0 * 30
         l2_polar = polar
 
-        light1 = np.array([
-            l1_radial * np.sin(l1_polar) * np.cos(l1_azimuthal),
-            l1_radial * np.sin(l1_polar) * np.sin(l1_azimuthal),
-            l1_radial * np.cos(l1_polar)
-        ])
+        light1 = np.array(
+            [
+                l1_radial * np.sin(l1_polar) * np.cos(l1_azimuthal),
+                l1_radial * np.sin(l1_polar) * np.sin(l1_azimuthal),
+                l1_radial * np.cos(l1_polar),
+            ]
+        )
 
-        light2 = np.array([
-            l2_radial * np.sin(l2_polar) * np.cos(l2_azimuthal),
-            l2_radial * np.sin(l2_polar) * np.sin(l2_azimuthal),
-            l2_radial * np.cos(l2_polar)
-        ])
+        light2 = np.array(
+            [
+                l2_radial * np.sin(l2_polar) * np.cos(l2_azimuthal),
+                l2_radial * np.sin(l2_polar) * np.sin(l2_azimuthal),
+                l2_radial * np.cos(l2_polar),
+            ]
+        )
 
         default_settings = """
     global_settings {ambient_light rgb <0.200, 0.200, 0.200>
@@ -416,28 +470,42 @@ def main():
     #end
 
 declare molecule = union {
-""" % (normal[0], normal[1], normal[2], visibility_scaling,
-           visibility_scaling, light1[0], light1[1], light1[2], light2[0],
-           light2[1], light2[2])
+""" % (
+            normal[0],
+            normal[1],
+            normal[2],
+            visibility_scaling,
+            visibility_scaling,
+            light1[0],
+            light1[1],
+            light1[2],
+            light2[0],
+            light2[1],
+            light2[2],
+        )
 
         povfile.write(default_settings)
 
         for atom in molecule:
             povfile.write(atom.to_pov())
 
-        bond_list = [
-        ]  #keeps track of the bond halfwaypoints just to avoid double counting
+        bond_list = (
+            []
+        )  # keeps track of the bond halfwaypoints just to avoid double counting
         for atom1 in molecule:
             for atom2 in molecule:
                 bond = Bond(atom1, atom2)
-                if (atom1 != atom2 and
-                        # abs(npl.norm(atom1.position - atom2.position)) <= 1.6
-                        plausible_bond(atom1, atom2, args.verbose)
-                        and bond.ID not in bond_list
-                        and bond.ID[::-1] not in bond_list):
+                if (
+                    atom1 != atom2
+                    and
+                    # abs(npl.norm(atom1.position - atom2.position)) <= 1.6
+                    plausible_bond(atom1, atom2, args.verbose)
+                    and bond.ID not in bond_list
+                    and bond.ID[::-1] not in bond_list
+                ):
                     bond_list.append(bond.ID)
                     povfile.write(bond.to_pov())
-        povfile.write('\n}')
+        povfile.write("\n}")
 
         # declare possibility for a rotation around x in the .pov of scene
         rotation_block_a = """
@@ -455,7 +523,7 @@ rotate <clock*360, 0, 0>
         # same folder with permission to write records.)
         rotation_block_b = ""
         rotation_block_b += "".join(['Input_File_Name="', output_pov, '"'])
-        rotation_block_b +="""
+        rotation_block_b += """
 Width = 640
 Height = 420
 Initial_Frame = 1
@@ -466,5 +534,5 @@ Antialias=on"""
             newfile.write(rotation_block_b)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
