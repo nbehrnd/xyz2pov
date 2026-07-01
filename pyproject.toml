@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xyz2pov"
+version = "0.1.0"
+requires-python = ">=3.10"
+authors = [
+    { name="Moritz Schäfer", email="moritz.schaefer@protonmail.com" },
+    { name="Norwid Behrnd", email="nbehrnd@yahoo.com" }
+]
+description = "Convert .xyz coordinates to povray scenes"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["visualization", "povray", "xyz-files", "pov-ray"]
+
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+
+dependencies = [
+    "numpy>=1.24,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2.2.post1",
+    "pre-commit>=4.5.1",
+]
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "pre-commit>=4.5.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/nbehrnd/xyz2pov"
+
+[project.scripts]
+xyz2pov = "app.xyz2povray:main"
+
+[tool.setuptools.package-data]
+"xyz2pov" = ["docs/molecules/*.xyz"]
+
+[tool.pytest]
+pythonpath = ["src"]
+testpaths = ["tests"]
+filterwarnings = ["ignore::pytest.PytestCacheWarning"]
+markers = [
+    "blackbox: a black-box test",
+    "imported: a test which imports a function of the script",
+]
+minversion = "9"
+log_level = "INFO"
+strict = true
+addopts = ["-ra"]
+
+[tool.codespell]
+skip = "*.xyz"

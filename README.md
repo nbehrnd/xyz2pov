@@ -55,4 +55,3 @@ Though [ruff](https://github.com/astral-sh/ruff) (version 0.1.13) does not
 identify an issue in `xyz2pov.py` related to this transition, for now,
 `requirements.txt` constrains the installation of `numpy` to be any version
 greater or equal to 1.24.0, but less than version 2.0.
-

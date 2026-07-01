@@ -18,21 +18,28 @@ def get_args():
         of `example.pov`) allows to generate a sequence of frames (by call of
         `povray example.ini`) to rotate the molecule around x-axis (Pov-Ray
         coordinate system).""",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument("source_file",
-                        metavar="FILE",
-                        type=argparse.FileType('rt'),
-                        help="Input .xyz file about the structure.")
+    parser.add_argument(
+        "source_file",
+        metavar="FILE",
+        type=argparse.FileType("rt"),
+        help="Input .xyz file about the structure.",
+    )
 
-    parser.add_argument("-v", "--verbose",
-                        default=False,
-                        action='store_true',
-                        help="Write an optional detailed report to the CLI.")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        default=False,
+        action="store_true",
+        help="Write an optional detailed report to the CLI.",
+    )
 
     return parser.parse_args()
 
 
+# fmt: off
 class Atom:
     """define appearance of atoms as colored spheres"""
 
@@ -152,6 +159,8 @@ class Atom:
 #       'Hs': {'mass': 269, 'rad': 0.25, 'rgb': [0.90, 0.00, 0.18]},
 #       'Mt': {'mass': 278, 'rad': 0.25, 'rgb': [0.92, 0.00, 0.15]},
     }
+# fmt: on
+
 
     def __init__(self, species, tag, position=[0, 0, 0], covalent_radius=0.0,
         sd_covalent_radius=0.0):
@@ -225,7 +234,7 @@ def get_structure(data):
     with open(data, mode="r", encoding="utf8") as xyz:
         for i, line in enumerate(xyz):
             line = line.split()
-            if len(line) == 4:  #and line[0] == 'C':       #no hydrogen
+            if len(line) == 4:  # and line[0] == 'C':       #no hydrogen
                 atoms = np.append(
                     atoms,
                     Atom(line[0], i - 2,
@@ -273,7 +282,7 @@ def fitPlane(positions):
     return normal
 
 
-def plausible_bond(atom1, atom2,report_level=False):
+def plausible_bond(atom1, atom2, report_level=False):
     """ check if two atoms could form a bond
 
     By comparison of the sum of the corresponding covalent radii with
@@ -293,7 +302,7 @@ def plausible_bond(atom1, atom2,report_level=False):
     # two sigma: mean value +/- 95% of the Gaussian distribution
     # three sigma:          +/- 99.7% of the Gaussian distribution
     sum_sd = (atom1.sd_covalent_radius + atom2.sd_covalent_radius) / 100
-    ubound_threshold_with_sd = theoretical_threshold + (3* sum_sd)
+    ubound_threshold_with_sd = theoretical_threshold + (3 * sum_sd)
 
     # a covalent bound now is set .true. below the limit of ubound
     # (different to xyz2mol, bond order is not of interest here)
@@ -341,7 +350,7 @@ def main():
 
         positions = np.array([atom.position for atom in molecule])
         normal = fitPlane(
-            positions) * 10  #direction from which the camera is looking
+            positions) * 10  # direction from which the camera is looking
 
         distances = np.array(
             [abs(npl.norm(atom.position)) for atom in molecule])
@@ -416,9 +425,8 @@ def main():
     #end
 
 declare molecule = union {
-""" % (normal[0], normal[1], normal[2], visibility_scaling,
-           visibility_scaling, light1[0], light1[1], light1[2], light2[0],
-           light2[1], light2[2])
+""" % (normal[0], normal[1], normal[2], visibility_scaling, visibility_scaling,
+    light1[0], light1[1], light1[2], light2[0], light2[1], light2[2])
 
         povfile.write(default_settings)
 
@@ -426,7 +434,7 @@ declare molecule = union {
             povfile.write(atom.to_pov())
 
         bond_list = [
-        ]  #keeps track of the bond halfwaypoints just to avoid double counting
+        ]  # keeps track of the bond halfwaypoints just to avoid double counting
         for atom1 in molecule:
             for atom2 in molecule:
                 bond = Bond(atom1, atom2)
@@ -455,7 +463,7 @@ rotate <clock*360, 0, 0>
         # same folder with permission to write records.)
         rotation_block_b = ""
         rotation_block_b += "".join(['Input_File_Name="', output_pov, '"'])
-        rotation_block_b +="""
+        rotation_block_b += """
 Width = 640
 Height = 420
 Initial_Frame = 1
