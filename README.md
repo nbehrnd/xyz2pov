@@ -4,7 +4,7 @@ This implementation in Python and `numpy` converts a structure described by an
 xyz coordinate file into POV-Ray scenes by
 
 ``` shell
-python ./xyz2povray.py input.xyz
+xyz2povray.py input.xyz
 ```
 
 with files `input.pov` and `input.ini`.  Subsequently, either
@@ -43,15 +43,27 @@ with a GUI.  Equally, [openbabel](https://github.com/openbabel/openbabel) allows
 the generation from the CLI (see
 [instructions](https://open-babel.readthedocs.io/en/latest/FileFormats/POV-Ray_input_format.html)).
 
-At time of writing, reserve about 93MB permanent memory for a virtual Python
-environment to support the script `xyz2mol.py`.  Consider about 2MB in addition
-for the script and its documentation.
+At time of writing (July 2026, Linux Debian 14/forky with Python 3.13.14),
+reserve about 30MB permanent memory for a virtual Python environment to
+support the script `xyz2mol.py`.  Consider about 2MB in addition for the
+script and its documentation.
+
+## installation
+
+Download the .zip archive, decompress it into a virtual Python
+environment.  After its activation, run
+
+``` shell
+pip install .
+```
+
+to obtain `xyz2pov` as executable to the CLI.
 
 ## future compatibility with `numpy2`
 
-For February 1st, 2024, `numpy2` is scheduled to be published as replacement for
-`numpy` (see for instance [here](https://pythonspeed.com/articles/numpy-2/)).
-Though [ruff](https://github.com/astral-sh/ruff) (version 0.1.13) does not
-identify an issue in `xyz2pov.py` related to this transition, for now,
-`requirements.txt` constrains the installation of `numpy` to be any version
-greater or equal to 1.24.0, but less than version 2.0.
+For February 1st, 2024, `numpy2` was scheduled to be published as replacement
+for `numpy` (see for instance
+[here](https://pythonspeed.com/articles/numpy-2/)).
+File `pyproject.toml` imposes a constraint on numy (>=1.24,<2.0) which
+currently resolves to `numpy` 1.26.4.  Future versions of `xyz2pov` might
+opt-in for the newer version of `numpy`.
