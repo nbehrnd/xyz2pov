@@ -14,7 +14,7 @@ description = "Convert .xyz coordinates to povray scenes"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-keywords = ["vizualization", "povray", "xyz-files", "pov-ray"]
+keywords = ["visualization", "povray", "xyz-files", "pov-ray"]
 
 # https://pypi.org/classifiers/
 classifiers = [
